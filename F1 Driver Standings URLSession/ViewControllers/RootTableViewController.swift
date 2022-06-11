@@ -6,18 +6,29 @@
 //
 
 import UIKit
+import Combine
 
 class RootTableViewController: UITableViewController {
     
     var model: DriverStandingsViewModel?
+    private var subscriptions = [AnyCancellable]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Loading Ssandings".localised()
+        title = "Loading Standings".localised()
 
         setupRefreshControl()
         refreshContent()
+        
+        model?.$standing.receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] (standing) in
+                
+                self?.refreshControl?.endRefreshing()
+                self?.title = self?.model?.seasonName()?.localised()
+                self?.tableView.reloadData()
+            })
+            .store(in: &subscriptions)
     }
     
     // MARK: - Table view data source
@@ -55,21 +66,7 @@ class RootTableViewController: UITableViewController {
             fatalError("There is no model for RootTableViewController") // We would fail more elegantly in prod code
         }
         
-        model.refresh { [weak self] (errorMessage) in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                
-                self.refreshControl?.endRefreshing()
-                
-                if let errorMessage = errorMessage {
-                    self.displayErrorToUser(message: errorMessage)
-                }
-                
-                self.title = model.seasonName()?.localised()
-                
-                self.tableView.reloadData()
-            }
-        }
+        model.refresh()
     }
     
     private func displayErrorToUser(message: String) {

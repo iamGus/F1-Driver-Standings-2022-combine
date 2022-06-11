@@ -6,7 +6,8 @@
 //
 
 import Foundation
+import Combine
 
 protocol F1Service: APIService {
-    func fetchCurrentDriverStandings(completion: @escaping (Result<[StandingsList], APIError>) -> ())
+    func fetchCurrentDriverStandings() -> AnyPublisher<StandingsListAPIResponse, Error>
 }

@@ -6,32 +6,32 @@
 //
 
 import Foundation
+import Combine
 
 class DriverStandingsViewModel {
     
-    private var standing: StandingsList?
+    @Published var standing: StandingsList?
     private var driverStanding: [DriverStanding]? {
         standing?.driverStandings
     }
     private var f1Repository: F1Repository
+    
+    private var subscriptions = [AnyCancellable]()
     
     init(f1Repository: F1Repository) {
         self.f1Repository = f1Repository
     }
     
     /// Gets the latest set of Driver Standings
-    func refresh(completion: @escaping (_ errorMessage: String?) -> ()) {
+    func refresh() {
         
-        f1Repository.fetchCurrentDriverStandings { result in
-            switch result {
-            case .failure(let error):
-                completion(error.errorDescription)
-                
-            case .success(let standing):
-                self.standing = standing
-                completion(nil)
+        f1Repository.fetchCurrentDriverStandings()
+            .sink { (completion) in
+                print("error: \(completion)")
+            } receiveValue: { [weak self] (response) in
+                self?.standing = response.MRData.StandingsTable.StandingsLists.first
             }
-        }
+            .store(in: &subscriptions)
     }
 }
 

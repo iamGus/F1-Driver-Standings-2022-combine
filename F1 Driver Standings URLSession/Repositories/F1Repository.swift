@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum F1RepositoryError: Error {
     case noContent
@@ -37,18 +38,8 @@ class F1Repository {
     }
     
     /// Gets the latest set of Driver Standings
-    func fetchCurrentDriverStandings(completion: @escaping (Result<StandingsList, F1RepositoryError>) -> ()) {
-        f1Service.fetchCurrentDriverStandings { (result) in
-            switch result {
-            case .failure(let error):
-                completion(.failure(.init(error)))
-            case .success(let standingList):
-                guard let standingList = standingList.first else {
-                    completion(.failure(.noContent))
-                    return
-                }
-                completion(.success(standingList))
-            }
-        }
+    func fetchCurrentDriverStandings() -> AnyPublisher<StandingsListAPIResponse, Error> {
+        
+        return f1Service.fetchCurrentDriverStandings()
     }
 }

@@ -6,30 +6,32 @@
 //
 
 import Foundation
+import Combine
 
 class F1APIService: F1Service {
+    var apiQueue: DispatchQueue
+    
   
     let session: URLSession
     
-    init(configuration: URLSessionConfiguration) {
+    init(configuration: URLSessionConfiguration, queue: DispatchQueue) {
         self.session = URLSession(configuration: configuration)
+        self.apiQueue = queue
     }
     
     convenience init() {
-        self.init(configuration: .default)
+        
+        let dispatchQueue = DispatchQueue(label: "ChuckNorrisAPI",
+                          qos: .default,
+                          attributes: .concurrent)
+        self.init(configuration: .default, queue: dispatchQueue)
     }
 
-    func fetchCurrentDriverStandings(completion: @escaping (Result<[StandingsList], APIError>) -> Void) {
+    func fetchCurrentDriverStandings() -> AnyPublisher<StandingsListAPIResponse, Error> {
         
         let endpoint = F1Endpoint.currentDriverStandings
         let request = endpoint.request
         
-        fetch(with: request, responseType: StandingsListAPIResponse.self, decode: { (dataResponse) -> [StandingsList] in
-            
-            guard let standingsListResponse = dataResponse as? StandingsListAPIResponse else {
-                return []
-            }
-            return standingsListResponse.MRData.StandingsTable.StandingsLists
-        }, completion: completion)
+        return fetch(with: request, responseType: StandingsListAPIResponse.self)
     }
 }

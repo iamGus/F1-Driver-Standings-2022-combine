@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// API Error cases
 enum APIError: Error {
@@ -29,66 +30,32 @@ enum APIError: Error {
 
 protocol APIService {
     var session: URLSession { get }
+    var apiQueue: DispatchQueue { get }
     
-    
-    func fetch<T: Decodable, Y: Decodable>(with request: URLRequest, responseType: Y.Type, decode: @escaping (Decodable) -> [T], completion: @escaping (Result<[T], APIError>) -> Void)
+    func fetch<Y: Decodable>(with request: URLRequest, responseType: Y.Type) -> AnyPublisher<Y, Error>
 }
 
 extension APIService {
 
-    typealias JSONTaskCompletionHandler = (Decodable?, APIError?) -> Void
+    typealias JSONTaskCompletionHandler = (AnyPublisher<Decodable, Error>) -> Void
     
-    /// Returns instance of URLSessionDataTask with Json data
-    private func decodingTask<T: Decodable>(with request: URLRequest, decodingType: T.Type, completionHandler completion: @escaping JSONTaskCompletionHandler) -> URLSessionDataTask {
-        let task = session.dataTask(with: request) { data, response, error in
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                completion(nil, .requestFailed)
-                return
-            }
-            
-            if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
-                if let data = data {
-                    do {
-                        let genericModel = try JSONDecoder().decode(decodingType, from: data)
-                         completion(genericModel, nil)
-                    } catch {
-                        completion(nil, .jsonConversionFailure)
-                    }
-                } else {
-                    completion(nil, .invalidData)
-                }
-            } else {
-                completion(nil, .responseUnsuccessful)
-            }
-        }
-        
-        return task
-    }
     /// Generic method to call decodingTask and see if data can be parsed, if it can then return Model
-    func fetch<T: Decodable, Y: Decodable>(with request: URLRequest, responseType: Y.Type, decode: @escaping (Decodable) -> [T], completion: @escaping (Result<[T], APIError>) -> Void) {
-        let task = decodingTask(with: request, decodingType: Y.self) { json, error in
-            
-            DispatchQueue.main.async {
-                guard let json = json else {
-                    if let error = error {
-                        completion(Result.failure(error))
-                    } else {
-                        completion(Result.failure(.invalidData)) // If no specific error message give generic error
-                    }
-                    return // return from error
+    func fetch<Y: Decodable>(with request: URLRequest, responseType: Y.Type) -> AnyPublisher<Y, Error> {
+        
+        session.dataTaskPublisher(for: request)
+            .receive(on: apiQueue)
+            .tryMap { (data, response) -> Data in
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw APIError.requestFailed
                 }
                 
-                let value = decode(json) // If data is successfully parsed
-                
-                if !value.isEmpty {
-                    completion(Result.success(value))
-                } else {
-                    completion(Result.failure(.jsonParsingFailure))
+                guard httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 else {
+                    throw APIError.responseUnsuccessful
                 }
+                return data
             }
-        }
-        task.resume()
+            .decode(type: responseType, decoder: JSONDecoder())
+            .eraseToAnyPublisher()
     }
     
 }
