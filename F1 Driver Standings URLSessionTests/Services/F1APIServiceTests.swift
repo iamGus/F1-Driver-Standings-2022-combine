@@ -8,6 +8,7 @@
 import XCTest
 
 import Mocker
+import Combine
 
 @testable import F1_Driver_Standings_URLSession
 
@@ -15,18 +16,25 @@ class F1APIServiceTests: XCTestCase {
     
     var service: F1APIService!
     
+    var subscriptions: Set<AnyCancellable> = []
+    
     override func setUpWithError() throws {
         
         let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [MockingURLProtocol.self]
         
-        service = F1APIService(configuration: configuration)
+        let dispatchQueue = DispatchQueue(label: "ChuckNorrisAPI",
+                          qos: .default,
+                          attributes: .concurrent)
+        
+        service = F1APIService(configuration: configuration, queue: dispatchQueue)
     }
     
     override func tearDownWithError() throws {
         
         service = nil
         URLSessionConfiguration.default.protocolClasses = []
+        subscriptions = []
     }
     
     // MARK: Login Tests
@@ -43,15 +51,14 @@ class F1APIServiceTests: XCTestCase {
                         data: [.get : MockData.currentStandingsData])
         mock.register()
         
-        service.fetchCurrentDriverStandings { (result) in
+        let service = self.service.fetchCurrentDriverStandings()
+        
+        service.sink { (completion) in
             
-            switch result {
-            case .failure(_):
-                XCTFail("request should have succeeded")
-            case .success(_):
-                succeedsExpectation.fulfill()
-            }
+        } receiveValue: { (result) in
+            succeedsExpectation.fulfill()
         }
+        .store(in: &subscriptions)
         
         waitForExpectations(timeout: 1, handler: nil)
     }
@@ -69,21 +76,30 @@ class F1APIServiceTests: XCTestCase {
                         requestError: URLError.networkConnectionLost as? Error)
         mock.register()
         
-        service.fetchCurrentDriverStandings { (result) in
+        let service = self.service.fetchCurrentDriverStandings()
 
-            switch result {
+        service.sink { (completion) in
+            switch completion {
             case .failure(let error):
-                XCTAssertEqual(.responseUnsuccessful, error)
-                failsExpectation.fulfill()
-            case .success(_):
-                XCTFail("request should have failed")
+                if let error = error as? APIError {
+                    XCTAssertEqual(APIError.responseUnsuccessful, error)
+                    failsExpectation.fulfill()
+                } else {
+                    XCTFail("request should have failed with another error")
+                }
+            case .finished:
+                XCTFail("request should have failed with another error")
             }
+            
+        } receiveValue: { (result) in
+            XCTFail("request should have failed")
         }
+        .store(in: &subscriptions)
         
         waitForExpectations(timeout: 1.0, handler: nil)
     }
     
-    func testfetchCurentStandings_InvalidJson_FailsWithJsonConversionFailure() {
+    func testfetchCurentStandings_InvalidJson_FailedjsonParsingFailure() {
         
         let failsExpectation = expectation(description: "Fails")
         
@@ -95,17 +111,27 @@ class F1APIServiceTests: XCTestCase {
                         data: [.get : Data()])
         mock.register()
         
-        service.fetchCurrentDriverStandings { (result) in
-            
-            switch result {
+        let service = self.service.fetchCurrentDriverStandings()
+
+        service.sink { (completion) in
+            switch completion {
             case .failure(let error):
-                XCTAssertEqual(.jsonConversionFailure, error)
-                failsExpectation.fulfill()
-            case .success(_):
-                XCTFail("request should have failed")
+                if let error = error as? APIError {
+                    XCTAssertEqual(.jsonParsingFailure, error)
+                    failsExpectation.fulfill()
+                } else {
+                    XCTFail("request should have failed with another error")
+                }
+            case .finished:
+                XCTFail("request should have failed with another error")
             }
+            
+        } receiveValue: { (result) in
+            XCTFail("request should have failed")
         }
+        .store(in: &subscriptions)
         
         waitForExpectations(timeout: 1, handler: nil)
     }
+ 
 }

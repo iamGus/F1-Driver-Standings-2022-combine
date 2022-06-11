@@ -36,10 +36,8 @@ protocol APIService {
 }
 
 extension APIService {
-
-    typealias JSONTaskCompletionHandler = (AnyPublisher<Decodable, Error>) -> Void
     
-    /// Generic method to call decodingTask and see if data can be parsed, if it can then return Model
+    /// Generic method to call dataTaskPublisher  and see if data can be parsed, if it can then return Model
     func fetch<Y: Decodable>(with request: URLRequest, responseType: Y.Type) -> AnyPublisher<Y, Error> {
         
         session.dataTaskPublisher(for: request)
@@ -51,6 +49,11 @@ extension APIService {
                 
                 guard httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 else {
                     throw APIError.responseUnsuccessful
+                }
+                
+                // I would refine this to catch conversion of json with the decoder error and not just empty data
+                guard data.isEmpty == false else {
+                    throw APIError.jsonParsingFailure
                 }
                 return data
             }

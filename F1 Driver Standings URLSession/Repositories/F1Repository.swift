@@ -39,7 +39,7 @@ class F1Repository {
     
     /// Gets the latest set of Driver Standings
     func fetchCurrentDriverStandings() -> AnyPublisher<StandingsListAPIResponse, Error> {
-        
+        // I would refine here to return F1RepositoryError
         return f1Service.fetchCurrentDriverStandings()
     }
 }

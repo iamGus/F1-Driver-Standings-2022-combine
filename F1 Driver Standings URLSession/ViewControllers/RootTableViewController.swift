@@ -22,11 +22,21 @@ class RootTableViewController: UITableViewController {
         refreshContent()
         
         model?.$standing.receive(on: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] (standing) in
                 
                 self?.refreshControl?.endRefreshing()
                 self?.title = self?.model?.seasonName()?.localised()
                 self?.tableView.reloadData()
+            })
+            .store(in: &subscriptions)
+        
+        model?.$errorMessage.receive(on: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] (errorMessage) in
+                
+                guard let errorMessage = errorMessage else { return }
+                self?.displayErrorToUser(message: errorMessage)
             })
             .store(in: &subscriptions)
     }

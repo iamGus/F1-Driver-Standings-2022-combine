@@ -4,7 +4,7 @@
 //
 //  Created by Angus Muller on 31/05/2022.
 //
-
+/*
 import XCTest
 
 @testable import F1_Driver_Standings_URLSession
@@ -67,3 +67,4 @@ class DriverStandingsViewModelTests: XCTestCase {
         waitForExpectations(timeout: 0.3, handler: nil)
     }
 }
+*/

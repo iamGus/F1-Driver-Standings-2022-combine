@@ -10,10 +10,14 @@ import Combine
 
 class DriverStandingsViewModel {
     
-    @Published var standing: StandingsList?
+    @Published private(set) var standing: StandingsList?
+    
+    @Published private(set) var errorMessage: String?
+    
     private var driverStanding: [DriverStanding]? {
         standing?.driverStandings
     }
+    
     private var f1Repository: F1Repository
     
     private var subscriptions = [AnyCancellable]()
@@ -26,8 +30,17 @@ class DriverStandingsViewModel {
     func refresh() {
         
         f1Repository.fetchCurrentDriverStandings()
-            .sink { (completion) in
-                print("error: \(completion)")
+            .sink { [weak self] (completion) in
+                switch completion {
+                case .failure(let error):
+                    if let error = error as? APIError {
+                        // I would refine to have the repository return error in F1RepositoryError type
+                        let repositoryError = F1RepositoryError(error)
+                        self?.errorMessage = repositoryError.errorDescription
+                    }
+                case .finished:
+                    break
+                }
             } receiveValue: { [weak self] (response) in
                 self?.standing = response.MRData.StandingsTable.StandingsLists.first
             }

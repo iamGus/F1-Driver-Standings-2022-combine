@@ -27,6 +27,7 @@ class F1APIService: F1Service {
         self.init(configuration: .default, queue: dispatchQueue)
     }
 
+    // Currently returns api response, I would refine here to return Driver Standing model
     func fetchCurrentDriverStandings() -> AnyPublisher<StandingsListAPIResponse, Error> {
         
         let endpoint = F1Endpoint.currentDriverStandings
