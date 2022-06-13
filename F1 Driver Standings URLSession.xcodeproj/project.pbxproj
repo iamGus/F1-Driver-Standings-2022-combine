@@ -15,9 +15,10 @@
 		189E4947284629FE00272793 /* Mocker in Frameworks */ = {isa = PBXBuildFile; productRef = 189E4946284629FE00272793 /* Mocker */; };
 		189E494D28462A6D00272793 /* F1APIServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189E494C28462A6D00272793 /* F1APIServiceTests.swift */; };
 		189E49642846538100272793 /* DriverStandingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189E49632846538100272793 /* DriverStandingsViewModelTests.swift */; };
+		18B08FA32857215400F4F1A2 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B08FA22857215400F4F1A2 /* RootViewController.swift */; };
+		18B08FA82857216A00F4F1A2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B08FA72857216A00F4F1A2 /* ContentView.swift */; };
 		18FE75DF2844C17F0044574F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE75DE2844C17F0044574F /* AppDelegate.swift */; };
 		18FE75E12844C17F0044574F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE75E02844C17F0044574F /* SceneDelegate.swift */; };
-		18FE75E32844C17F0044574F /* RootTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE75E22844C17F0044574F /* RootTableViewController.swift */; };
 		18FE75E62844C17F0044574F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18FE75E42844C17F0044574F /* Main.storyboard */; };
 		18FE75E82844C18F0044574F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FE75E72844C18F0044574F /* Assets.xcassets */; };
 		18FE75EB2844C18F0044574F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18FE75E92844C18F0044574F /* LaunchScreen.storyboard */; };
@@ -58,10 +59,11 @@
 		1894126428451F4400093676 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		189E494C28462A6D00272793 /* F1APIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F1APIServiceTests.swift; sourceTree = "<group>"; };
 		189E49632846538100272793 /* DriverStandingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverStandingsViewModelTests.swift; sourceTree = "<group>"; };
+		18B08FA22857215400F4F1A2 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		18B08FA72857216A00F4F1A2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		18FE75DB2844C17F0044574F /* F1 Driver Standings URLSession.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "F1 Driver Standings URLSession.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FE75DE2844C17F0044574F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		18FE75E02844C17F0044574F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		18FE75E22844C17F0044574F /* RootTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTableViewController.swift; sourceTree = "<group>"; };
 		18FE75E52844C17F0044574F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		18FE75E72844C18F0044574F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		18FE75EA2844C18F0044574F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -136,8 +138,8 @@
 		18941250284504BA00093676 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				18FE75E22844C17F0044574F /* RootTableViewController.swift */,
 				18941254284512A300093676 /* RootNaviagtionController.swift */,
+				18B08FA22857215400F4F1A2 /* RootViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -209,6 +211,7 @@
 				18FE75E02844C17F0044574F /* SceneDelegate.swift */,
 				18FE75E72844C18F0044574F /* Assets.xcassets */,
 				18FE75EC2844C18F0044574F /* Info.plist */,
+				18B08FA72857216A00F4F1A2 /* ContentView.swift */,
 			);
 			path = "F1 Driver Standings URLSession";
 			sourceTree = "<group>";
@@ -409,9 +412,10 @@
 			files = (
 				18FE764B2844CF830044574F /* DriverStandingsViewModel.swift in Sources */,
 				18FE763B2844C9F90044574F /* F1APIService.swift in Sources */,
+				18B08FA82857216A00F4F1A2 /* ContentView.swift in Sources */,
 				18FE76402844CAE50044574F /* StandingsListAPIResponse.swift in Sources */,
-				18FE75E32844C17F0044574F /* RootTableViewController.swift in Sources */,
 				18FE76132844C25F0044574F /* APIService.swift in Sources */,
+				18B08FA32857215400F4F1A2 /* RootViewController.swift in Sources */,
 				18FE761F2844C3700044574F /* F1Service.swift in Sources */,
 				18FE762E2844C7030044574F /* StangingsList.swift in Sources */,
 				18941255284512A300093676 /* RootNaviagtionController.swift in Sources */,

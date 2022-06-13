@@ -8,15 +8,12 @@
 import Foundation
 import Combine
 
-class DriverStandingsViewModel {
+class DriverStandingsViewModel: ObservableObject {
     
-    @Published private(set) var standing: StandingsList?
+    @Published private(set) var driverStanding: [DriverStanding] = []
     
+    //TODO: As now using SwiftUI need to update view to use errorMessage
     @Published private(set) var errorMessage: String?
-    
-    private var driverStanding: [DriverStanding]? {
-        standing?.driverStandings
-    }
     
     private var f1Repository: F1Repository
     
@@ -30,6 +27,7 @@ class DriverStandingsViewModel {
     func refresh() {
         
         f1Repository.fetchCurrentDriverStandings()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] (completion) in
                 switch completion {
                 case .failure(let error):
@@ -42,32 +40,11 @@ class DriverStandingsViewModel {
                     break
                 }
             } receiveValue: { [weak self] (response) in
-                self?.standing = response.MRData.StandingsTable.StandingsLists.first
+                if let driverStanding = response.MRData.StandingsTable.StandingsLists.first?.driverStandings {
+                    self?.driverStanding = driverStanding
+                }
             }
             .store(in: &subscriptions)
     }
 }
 
-// MARK: - Standing data
-
-extension DriverStandingsViewModel {
-    func allDriverStandings() -> [DriverStanding]? {
-        return driverStanding
-    }
-    
-    func driverStanding(at index: Int) -> DriverStanding? {
-        
-        guard index < driverStandingCount() else {
-            return nil
-        }
-        return allDriverStandings()?[index]
-    }
-    
-    func driverStandingCount() -> Int {
-        return driverStanding?.count ?? 0
-    }
-    
-    func seasonName() -> String? {
-        return standing?.season
-    }
-}

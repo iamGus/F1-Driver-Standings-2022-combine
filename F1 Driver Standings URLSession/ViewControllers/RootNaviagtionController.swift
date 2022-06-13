@@ -13,13 +13,6 @@ class RootNaviagtionController: UINavigationController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        
-        if let rootTableViewController = topViewController as? RootTableViewController {
-            
-            let f1Service = F1APIService()
-            let repository = F1Repository(f1Service: f1Service)
-            rootTableViewController.model = DriverStandingsViewModel(f1Repository: repository)
-        }
-  
+
     }
 }
